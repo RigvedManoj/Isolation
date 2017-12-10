@@ -2,7 +2,7 @@
 <html>
 <body>
 
-<canvas id="myCanvas" width="1350" height="630" onclick="position()"style="border:1px solid #ffffff;">
+<canvas id="myCanvas" width="1350" height="630" onclick="position(event)"style="border:1px solid #ffffff;">
 Your browser does not support the HTML5 canvas tag.</canvas>
 
 <script>
@@ -11,7 +11,7 @@ var check=0;
 var arrx=[],arry=[];
 var element=document.getElementById("myCanvas");
 var switching=1;
-function position()
+function position(event)
 {
   var x = event.clientX;
   var y = event.clientY;
