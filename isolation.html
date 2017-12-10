@@ -17,7 +17,7 @@ function position()
   var y = event.clientY;
   x=x-x%50+25;
   y=y-y%50+25;
-  if(x>500 && x<900 && y>150 && y<550)
+  if((x>500 && x<900 && y>150 && y<550)&&(x!=redx || y!=redy)&&(x!=bluex || y!=bluey))
   {
   check=0;
   for(var i=0;i<arrx.length;i++)
@@ -33,7 +33,7 @@ function position()
   {
   setup();
   console.log(x,y);
-    if(((x-redx==50 || redx-x==50 || x==redx)&&(y-redy==50 || redy-y==50 || y==redy))&&(x!=redx || y!=redy))
+    if(((x-redx==50 || redx-x==50 || x==redx)&&(y-redy==50 || redy-y==50 || y==redy))&&((x-bluex!=50 && bluex-x!=50 && x!=bluex)||(y-bluey!=50 && bluey-y!=50 && y!=bluey)))
     {
       switching=0;
       redx=x;
