@@ -1,10 +1,19 @@
 <!DOCTYPE html>
 <html>
 <body>
-
+  <style>
+	#p1{
+		position: fixed;
+		font-size: 20px;
+		font-weight: bolder;
+		color: #0000FF;
+		top:600px;
+		left:650px;
+	}
+  </style>
 <canvas id="myCanvas" width="1350" height="630" onclick="position(event)"style="border:1px solid #ffffff;">
 Your browser does not support the HTML5 canvas tag.</canvas>
-
+	<p id="p1">MOVE PIECE</p>
 <script>
 var bluex=725,bluey=175,redx=675,redy=525;
 var check=0;
@@ -36,23 +45,32 @@ function position(event)
     if(((x-redx==50 || redx-x==50 || x==redx)&&(y-redy==50 || redy-y==50 || y==redy))&&((x-bluex!=50 && bluex-x!=50 && x!=bluex)||(y-bluey!=50 && bluey-y!=50 && y!=bluey)))
     {
       switching=0;
+      document.getElementById("p1").innerHTML="ERASE TILE";
       redx=x;
       redy=y;
    }
   pieces();
 }
-else {
+else if(switching==0){
   console.log(1);
- switching=1;
+ switching=2;
+ document.getElementById("p1").innerHTML="OPPONENT'S TURN";
  ctx.beginPath();
  ctx.fillStyle="white";
  ctx.fillRect(x-25,y-25, 50,50);
  ctx.rect(x-25, y-25, 50,50);
  arrx.push(x);
  arry.push(y);
+ setTimeout(comp_play, 1000);
  }
 }
 }
+}
+function comp_play()
+{
+console.log(1000);
+switching=1;
+document.getElementById("p1").innerHTML="MOVE PIECE";
 }
 function setup()
 {
