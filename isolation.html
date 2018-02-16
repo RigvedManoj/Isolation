@@ -44,14 +44,15 @@ function setup()
   if(arrx.length!=0)
   {
     ctx.beginPath();
-  ctx.fillStyle="white";
-  for(var i=0;i<arrx.length;i++)
-  {
-    ctx.fillRect(arrx[i]-25,arry[i]-25, 50,50);
-    ctx.rect(arrx[i]-25,arry[i]-25, 50,50);
-  }
+    ctx.fillStyle="white";
+    for(var i=0;i<arrx.length;i++)
+    {
+      ctx.fillRect(arrx[i]-25,arry[i]-25, 50,50);
+      ctx.rect(arrx[i]-25,arry[i]-25, 50,50);
+    }
     ctx.stroke();
- }
+  }
+  pieces();
 }
 //-----------------------------------------------------------------------------------------------------------------
 //Creating and Moving Pieces
@@ -122,7 +123,6 @@ function position(event)
   {
     if(switching==1)
     {
-      setup();
       console.log(x,y);
       if(move(x,y,redx,redy,bluex,bluey))
       {
@@ -131,7 +131,7 @@ function position(event)
         redx=x;
         redy=y;
       }
-      pieces();
+      setup();
     }
     else if(switching==0)
     {
@@ -139,6 +139,7 @@ function position(event)
       switching=2;
       document.getElementById("p1").innerHTML="OPPONENT'S TURN";
       erase(x,y);
+      setup();
       setTimeout(comp_play, 1000);
     }
   }
@@ -147,14 +148,39 @@ function position(event)
 //Computer's Turn
 function comp_play()
 {
-console.log(1000);
-switching=1;
-document.getElementById("p1").innerHTML="MOVE PIECE";
+  for(var i=-1;i<=1;i++)
+    for(var j=-1;j<=1;j++)
+    {
+      var x=bluex+i*50;
+      var y=bluey+j*50;
+      if(valid(x,y) && move(x,y,bluex,bluey,redx,redy))
+      {
+        bluex=x;
+        bluey=y;
+        i=3;
+        j=3;
+      }
+    }
+  setup();
+  for(var i=-1;i<=1;i++)
+    for(var j=-1;j<=1;j++)
+    {
+      var x=redx+i*50;
+      var y=redy+j*50;
+      if(valid(x,y))
+      {
+        erase(x,y);
+        i=3;
+        j=3;
+      }
+    }
+  setup();
+  switching=1;
+  document.getElementById("p1").innerHTML="MOVE PIECE";
 }
 //-----------------------------------------------------------------------------------------------------------------
 //Game Starts
 setup();
-pieces();
 </script>
 </body>
 </html>
