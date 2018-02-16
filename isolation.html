@@ -1,77 +1,33 @@
 <!DOCTYPE html>
 <html>
+<head>
+<style>
+  #p1{
+    position: fixed;
+    font-size: 20px;
+    font-weight: bolder;
+    color: #0000FF;
+    top:600px;
+    left:650px;
+  }
+</style>
+</head>
 <body>
-  <style>
-	#p1{
-		position: fixed;
-		font-size: 20px;
-		font-weight: bolder;
-		color: #0000FF;
-		top:600px;
-		left:650px;
-	}
-  </style>
 <canvas id="myCanvas" width="1350" height="630" onclick="position(event)"style="border:1px solid #ffffff;">
 Your browser does not support the HTML5 canvas tag.</canvas>
-	<p id="p1">MOVE PIECE</p>
+<p id="p1">MOVE PIECE</p>
 <script>
-var bluex=725,bluey=175,redx=675,redy=525;
-var check=0;
-var arrx=[],arry=[];
+//Variable Definitions
+var bluex=725,bluey=175,redx=675,redy=525;//positon of pieces
+var check=0,switching=1;
+var arrx=[],arry=[];//To store invalid tiles
+//-----------------------------------------------------------------------------------------------------------------
+//Defining Canvas
 var element=document.getElementById("myCanvas");
-var switching=1;
-function position(event)
-{
-  var x = event.clientX;
-  var y = event.clientY;
-  x=x-x%50+25;
-  y=y-y%50+25;
-  if((x>500 && x<900 && y>150 && y<550)&&(x!=redx || y!=redy)&&(x!=bluex || y!=bluey))
-  {
-  check=0;
-  for(var i=0;i<arrx.length;i++)
-  {
-    if(x==arrx[i] && y==arry[i])
-     {check=1;
-       break;
-     }
-  }
-  if(check==0)
-  {
-  if(switching==1)
-  {
-  setup();
-  console.log(x,y);
-    if(((x-redx==50 || redx-x==50 || x==redx)&&(y-redy==50 || redy-y==50 || y==redy))&&((x-bluex!=50 && bluex-x!=50 && x!=bluex)||(y-bluey!=50 && bluey-y!=50 && y!=bluey)))
-    {
-      switching=0;
-      document.getElementById("p1").innerHTML="ERASE TILE";
-      redx=x;
-      redy=y;
-   }
-  pieces();
-}
-else if(switching==0){
-  console.log(1);
- switching=2;
- document.getElementById("p1").innerHTML="OPPONENT'S TURN";
- ctx.beginPath();
- ctx.fillStyle="white";
- ctx.fillRect(x-25,y-25, 50,50);
- ctx.rect(x-25, y-25, 50,50);
- arrx.push(x);
- arry.push(y);
- setTimeout(comp_play, 1000);
- }
-}
-}
-}
-function comp_play()
-{
-console.log(1000);
-switching=1;
-document.getElementById("p1").innerHTML="MOVE PIECE";
-}
+var c = document.getElementById("myCanvas");
+var ctx = c.getContext("2d");
+//-----------------------------------------------------------------------------------------------------------------
+//Creaing Board and Drawing Tiles
 function setup()
 {
   ctx.beginPath();
@@ -97,6 +53,8 @@ function setup()
     ctx.stroke();
  }
 }
+//-----------------------------------------------------------------------------------------------------------------
+//Creating and Moving Pieces
 function pieces()
 {
   ctx.beginPath();
@@ -110,8 +68,91 @@ function pieces()
   ctx.fill();
   ctx.stroke();
 }
-var c = document.getElementById("myCanvas");
-var ctx = c.getContext("2d");
+//-----------------------------------------------------------------------------------------------------------------
+//Erase Tile
+function erase(x,y)
+{
+  ctx.beginPath();
+  ctx.fillStyle="white";
+  ctx.fillRect(x-25,y-25, 50,50);
+  ctx.rect(x-25, y-25, 50,50);
+  arrx.push(x);
+  arry.push(y);
+}
+//-----------------------------------------------------------------------------------------------------------------
+//Check if Tile Valid
+function valid(x,y)
+{
+  check=1;
+  if((x>500 && x<900 && y>150 && y<550)&&(x!=redx || y!=redy)&&(x!=bluex || y!=bluey))
+  {
+    check=0;
+    for(var i=0;i<arrx.length;i++)
+    {
+      if(x==arrx[i] && y==arry[i])
+      {
+        check=1;
+        break;
+      }
+    }
+  }
+  if(check==0)
+    return true;
+  else
+    return false;
+}
+//-----------------------------------------------------------------------------------------------------------------
+//Checks Near Pieces
+function move(x,y,x1,y1,x2,y2)
+{
+  if(((x-x1==50 || x1-x==50 || x==x1)&&(y-y1==50 || y1-y==50 || y==y1))&&((x-x2!=50 && x2-x!=50 && x!=x2)||(y-y2!=50 && y2-y!=50 && y!=y2)))
+    return true;
+  else
+    return false;
+}
+//-----------------------------------------------------------------------------------------------------------------
+//Get Position from Clicked Tile
+function position(event)
+{
+  var x = event.clientX;
+  var y = event.clientY;
+  x=x-x%50+25;
+  y=y-y%50+25;
+  if(valid(x,y))
+  {
+    if(switching==1)
+    {
+      setup();
+      console.log(x,y);
+      if(move(x,y,redx,redy,bluex,bluey))
+      {
+        switching=0;
+        document.getElementById("p1").innerHTML="ERASE TILE";
+        redx=x;
+        redy=y;
+      }
+      pieces();
+    }
+    else if(switching==0)
+    {
+      console.log(1);
+      switching=2;
+      document.getElementById("p1").innerHTML="OPPONENT'S TURN";
+      erase(x,y);
+      setTimeout(comp_play, 1000);
+    }
+  }
+}
+//-----------------------------------------------------------------------------------------------------------------
+//Computer's Turn
+function comp_play()
+{
+console.log(1000);
+switching=1;
+document.getElementById("p1").innerHTML="MOVE PIECE";
+}
+//-----------------------------------------------------------------------------------------------------------------
+//Game Starts
 setup();
 pieces();
 </script>
