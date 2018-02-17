@@ -2,7 +2,7 @@
 <html>
 <head>
 <style>
-  #p1{
+#p1{
     position: fixed;
     font-size: 20px;
     font-weight: bolder;
@@ -32,6 +32,7 @@ function setup()
 {
   ctx.beginPath();
   ctx.fillStyle="lightgrey";
+  //creates all tiles
   for( var i=0;i<8;i++)
   {
     for (var j=0;j<8;j++)
@@ -41,6 +42,7 @@ function setup()
     }
   }
   ctx.stroke();
+  //erases invalid tiles
   if(arrx.length!=0)
   {
     ctx.beginPath();
@@ -52,6 +54,7 @@ function setup()
     }
     ctx.stroke();
   }
+  //creates pieces
   pieces();
 }
 //-----------------------------------------------------------------------------------------------------------------
@@ -112,6 +115,23 @@ function move(x,y,x1,y1,x2,y2)
     return false;
 }
 //-----------------------------------------------------------------------------------------------------------------
+//Counts all valid tiles nearby
+function count(x,y)
+{
+  var count=0;
+  for(var i=-1;i<=1;i++)
+    for(var j=-1;j<=1;j++)
+    {
+      var x1=x+i*50;
+      var y1=y+j*50;
+      if(valid(x1,y1) && move(x1,y1,x,y,redx,redy))
+      {
+        count++;
+      }
+    }
+  return count;
+}
+//-----------------------------------------------------------------------------------------------------------------
 //Get Position from Clicked Tile
 function position(event)
 {
@@ -148,6 +168,10 @@ function position(event)
 //Computer's Turn
 function comp_play()
 {
+  var max=0;
+  var tempx,tempy;
+  tempx=bluex;
+  tempy=bluey;
   for(var i=-1;i<=1;i++)
     for(var j=-1;j<=1;j++)
     {
@@ -155,12 +179,16 @@ function comp_play()
       var y=bluey+j*50;
       if(valid(x,y) && move(x,y,bluex,bluey,redx,redy))
       {
-        bluex=x;
-        bluey=y;
-        i=3;
-        j=3;
+        if(count(x,y)>=max)
+        {
+          tempx=x;
+          tempy=y;
+          max=count(x,y);
+        }
       }
     }
+    bluex=tempx;
+    bluey=tempy;
   setup();
   for(var i=-1;i<=1;i++)
     for(var j=-1;j<=1;j++)
