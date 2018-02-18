@@ -116,15 +116,15 @@ function move(x,y,x1,y1,x2,y2)
 }
 //-----------------------------------------------------------------------------------------------------------------
 //Counts all valid tiles nearby
-function count(x,y)
+function count(x1,y1,x2,y2)
 {
   var count=0;
   for(var i=-1;i<=1;i++)
     for(var j=-1;j<=1;j++)
     {
-      var x1=x+i*50;
-      var y1=y+j*50;
-      if(valid(x1,y1) && move(x1,y1,x,y,redx,redy))
+      var x=x1+i*50;
+      var y=y1+j*50;
+      if(valid(x,y) && move(x,y,x1,y1,x2,y2))
       {
         count++;
       }
@@ -179,32 +179,48 @@ function comp_play()
       var y=bluey+j*50;
       if(valid(x,y) && move(x,y,bluex,bluey,redx,redy))
       {
-        if(count(x,y)>=max)
+        if(count(x,y,redx,redy)>=max)
         {
           tempx=x;
           tempy=y;
-          max=count(x,y);
+          max=count(x,y,redx,redy);
         }
       }
     }
+  if(max==0)
+  {
+    switching=-1;
+    document.getElementById("p1").innerHTML="YOU WIN";
+  }
+  else
+  {
     bluex=tempx;
     bluey=tempy;
-  setup();
-  for(var i=-1;i<=1;i++)
-    for(var j=-1;j<=1;j++)
-    {
-      var x=redx+i*50;
-      var y=redy+j*50;
-      if(valid(x,y))
+    setup();
+    for(var i=-1;i<=1;i++)
+      for(var j=-1;j<=1;j++)
       {
-        erase(x,y);
-        i=3;
-        j=3;
+        var x=redx+i*50;
+        var y=redy+j*50;
+        if(valid(x,y))
+        {
+          erase(x,y);
+          i=3;
+          j=3;
+        }
       }
+    setup();
+    if(count(redx,redy,bluex,bluey)==0)
+    {
+      switching=-1;
+      document.getElementById("p1").innerHTML="YOU LOSE";
     }
-  setup();
-  switching=1;
-  document.getElementById("p1").innerHTML="MOVE PIECE";
+    else
+    {
+      switching=1;
+      document.getElementById("p1").innerHTML="MOVE PIECE";
+    }
+  }
 }
 //-----------------------------------------------------------------------------------------------------------------
 //Game Starts
