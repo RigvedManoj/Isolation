@@ -21,58 +21,12 @@ Your browser does not support the HTML5 canvas tag.</canvas>
 var bluex=725,bluey=175,redx=675,redy=525;//positon of pieces
 var check=0,switching=1;
 var arrx=[],arry=[];//To store invalid tiles
-//-----------------------------------------------------------------------------------------------------------------
 //Defining Canvas
 var element=document.getElementById("myCanvas");
 var c = document.getElementById("myCanvas");
 var ctx = c.getContext("2d");
-//-----------------------------------------------------------------------------------------------------------------
-//Creaing Board and Drawing Tiles
-function setup()
-{
-  ctx.beginPath();
-  ctx.fillStyle="lightgrey";
-  //creates all tiles
-  for( var i=0;i<8;i++)
-  {
-    for (var j=0;j<8;j++)
-    {
-      ctx.fillRect(500+50*i, 150+50*j, 50,50);
-      ctx.rect(500+50*i, 150+50*j, 50,50);
-    }
-  }
-  ctx.stroke();
-  //erases invalid tiles
-  if(arrx.length!=0)
-  {
-    ctx.beginPath();
-    ctx.fillStyle="white";
-    for(var i=0;i<arrx.length;i++)
-    {
-      ctx.fillRect(arrx[i]-25,arry[i]-25, 50,50);
-      ctx.rect(arrx[i]-25,arry[i]-25, 50,50);
-    }
-    ctx.stroke();
-  }
-  //creates pieces
-  pieces();
-}
-//-----------------------------------------------------------------------------------------------------------------
-//Creating and Moving Pieces
-function pieces()
-{
-  ctx.beginPath();
-  ctx.arc(bluex, bluey, 15, 0, 2 * Math.PI);
-  ctx.fillStyle = "blue";
-  ctx.fill();
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.arc(redx, redy, 15, 0, 2 * Math.PI);
-  ctx.fillStyle = "red";
-  ctx.fill();
-  ctx.stroke();
-}
-//-----------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------
+                              //REQUIRED FUNCTIONS
 //Erase Tile
 function erase(x,y)
 {
@@ -83,7 +37,6 @@ function erase(x,y)
   arrx.push(x);
   arry.push(y);
 }
-//-----------------------------------------------------------------------------------------------------------------
 //Check if Tile Valid
 function valid(x,y)
 {
@@ -105,8 +58,8 @@ function valid(x,y)
   else
     return false;
 }
-//-----------------------------------------------------------------------------------------------------------------
 //Checks Near Pieces
+//where x1,y1 is the position of our piece and x2,y2 is the position of other piece
 function move(x,y,x1,y1,x2,y2)
 {
   if(((x-x1==50 || x1-x==50 || x==x1)&&(y-y1==50 || y1-y==50 || y==y1))&&((x-x2!=50 && x2-x!=50 && x!=x2)||(y-y2!=50 && y2-y!=50 && y!=y2)))
@@ -114,8 +67,8 @@ function move(x,y,x1,y1,x2,y2)
   else
     return false;
 }
-//-----------------------------------------------------------------------------------------------------------------
 //Counts all valid tiles nearby
+//where x2,y2 is the position of the other piece
 function count(x1,y1,x2,y2)
 {
   var count=0;
@@ -131,7 +84,21 @@ function count(x1,y1,x2,y2)
     }
   return count;
 }
-//-----------------------------------------------------------------------------------------------------------------
+function distfromcentre(x,y)
+{
+  var x1,y1;
+  if(x>700)
+    x1=x-700;
+  else
+    x1=700-x;
+  if(y>350)
+    y1=y-350;
+  else
+    y1=350-y;
+  return (Math.sqrt((x1*x1)+(y1*y1)));
+}
+//-----------------------------------------------------------------------------------------------
+                                //ACTUAL GAME
 //Get Position from Clicked Tile
 function position(event)
 {
@@ -164,11 +131,10 @@ function position(event)
     }
   }
 }
-//-----------------------------------------------------------------------------------------------------------------
 //Computer's Turn
 function comp_play()
 {
-  var max=0;
+  var max=0,dist=1000000;
   var tempx,tempy;
   tempx=bluex;
   tempy=bluey;
@@ -179,14 +145,24 @@ function comp_play()
       var y=bluey+j*50;
       if(valid(x,y) && move(x,y,bluex,bluey,redx,redy))
       {
-        if(count(x,y,redx,redy)>=max)
+        if(distfromcentre(x,y)<dist)
         {
+          dist=distfromcentre(x,y);
           tempx=x;
           tempy=y;
-          max=count(x,y,redx,redy);
+        }
+        else if(distfromcentre(x,y)==dist)
+        {
+          if(count(x,y,redx,redy)>=max)
+          {
+            tempx=x;
+            tempy=y;
+            max=count(x,y,redx,redy);
+          }
         }
       }
     }
+    max=count(tempx,tempy,redx,redy);
   if(max==0)
   {
     switching=-1;
@@ -197,18 +173,32 @@ function comp_play()
     bluex=tempx;
     bluey=tempy;
     setup();
+    max=0,dist=1000000;
     for(var i=-1;i<=1;i++)
       for(var j=-1;j<=1;j++)
       {
         var x=redx+i*50;
         var y=redy+j*50;
-        if(valid(x,y))
+        if(valid(x,y) && move(x,y,redx,redy,bluex,bluey))
         {
-          erase(x,y);
-          i=3;
-          j=3;
+          if(count(x,y,bluex,bluey)>max)
+          {
+              tempx=x;
+              tempy=y;
+              max=count(x,y,bluex,bluey);
+          }
+          else if(count(x,y,bluex,bluey)==max)
+          {
+            if(distfromcentre(x,y)<dist)
+            {
+              dist=distfromcentre(x,y);
+              tempx=x;
+              tempy=y;
+            }
+          }
         }
       }
+      erase(tempx,tempy);
     setup();
     if(count(redx,redy,bluex,bluey)==0)
     {
@@ -222,7 +212,52 @@ function comp_play()
     }
   }
 }
-//-----------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------
+                              //SETTING UP
+//Creating and Moving Pieces
+function pieces()
+{
+  ctx.beginPath();
+  ctx.arc(bluex, bluey, 15, 0, 2 * Math.PI);
+  ctx.fillStyle = "blue";
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(redx, redy, 15, 0, 2 * Math.PI);
+  ctx.fillStyle = "red";
+  ctx.fill();
+  ctx.stroke();
+}
+//Creaing Board and Drawing Tiles
+function setup()
+{
+  ctx.beginPath();
+  ctx.fillStyle="lightgrey";
+  //creates all tiles
+  for( var i=0;i<8;i++)
+  {
+    for (var j=0;j<8;j++)
+    {
+      ctx.fillRect(500+50*i, 150+50*j, 50,50);
+      ctx.rect(500+50*i, 150+50*j, 50,50);
+    }
+  }
+  ctx.stroke();
+  //erases invalid tiles
+  if(arrx.length!=0)
+  {
+    ctx.beginPath();
+    ctx.fillStyle="white";
+    for(var i=0;i<arrx.length;i++)
+    {
+      ctx.fillRect(arrx[i]-25,arry[i]-25, 50,50);
+      ctx.rect(arrx[i]-25,arry[i]-25, 50,50);
+    }
+    ctx.stroke();
+  }
+  //creates pieces
+  pieces();
+}
 //Game Starts
 setup();
 </script>
